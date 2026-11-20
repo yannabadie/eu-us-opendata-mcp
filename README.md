@@ -1,5 +1,8 @@
 # `eu-us-opendata-mcp`
 
+[![MCP Stdio Tests](https://github.com/yannabadie/eu-us-opendata-mcp/actions/workflows/test.yml/badge.svg)](https://github.com/yannabadie/eu-us-opendata-mcp/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 Zero-dependency, zero-API-key **Model Context Protocol (MCP)** stdio server in pure Python 3.10+ for querying **4 official European & U.S. government open-data registries** directly from **Claude Desktop, Claude Code, Cursor, Windsurf, Google Antigravity, or Codex**.
 
 ---
