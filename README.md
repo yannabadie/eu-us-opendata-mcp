@@ -63,13 +63,14 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 
 ## Need Bulk Cloud Exports (1,000–10,000+ Records), Daily n8n Alerts, or Hosted Remote MCP?
 
-This local MCP server is built for fast interactive agent lookups (up to 25 results per tool call). For **bulk CSV/Excel/JSON extraction, scheduled daily monitoring, BODACC insolvency KYC screening, BOAMP French tenders, award winner intelligence, and ready-to-import n8n workflows**, use our hosted Pay-Per-Event Apify Actors (free `$5/mo` Apify credits included):
+This local MCP server is built for fast interactive agent lookups (up to 25 results per tool call). For **bulk CSV/Excel/JSON extraction, scheduled daily monitoring, BODACC insolvency KYC screening, BOAMP French tenders, award winner intelligence, and ready-to-import n8n workflows**, use our hosted Pay-Per-Event Apify Actors ([free `$5/mo` Apify credits included](https://apify.com/?fpr=zuvzfw)):
 
-- **[Pappers / SIRENE Scraper — French Companies API](https://apify.com/yannabadie/french-company-intelligence-mcp)** (`$6/1k`, free count mode, GPS radius search, BODACC insolvency KYC & BOAMP)
-- **[TED Europa & BOAMP — EU Public Tenders & Contacts](https://apify.com/yannabadie/eu-public-tenders-ted-boamp)** (`$3–$4/1k`, 27 EU countries + France, buyer contacts & award winners)
-- **[ClinicalTrials.gov API v2 — Trials & Contacts](https://apify.com/yannabadie/clinical-trials-api-mcp)** (`$5/1k`, 500k+ studies, free count mode, URL/NCT lookup & contacts)
-- **[NPI Registry Scraper — US Doctors & Clinics API](https://apify.com/yannabadie/npi-healthcare-providers-mcp)** (`$2.50/1k` all-inclusive, 8M+ U.S. doctors & clinics, phones, fax & authorized officials)
-- **[PubMed & Europe PMC API — Papers, Emails & PDFs](https://apify.com/yannabadie/pubmed-europepmc-api-mcp)** (`$2/1k`, 37M+ papers, full abstracts, author emails, ORCIDs, grants, NCT trial links & free PDFs)
+- **[Pappers / SIRENE Scraper — French Companies API](https://apify.com/yannabadie/french-company-intelligence-mcp?fpr=zuvzfw)** (`$6/1k`, free count mode, GPS radius search, BODACC insolvency KYC & BOAMP)
+- **[TED Europa & BOAMP — EU Public Tenders & Contacts](https://apify.com/yannabadie/eu-public-tenders-ted-boamp?fpr=zuvzfw)** (`$3–$4/1k`, 27 EU countries + France, buyer contacts & award winners)
+- **[ClinicalTrials.gov API v2 — Trials & Contacts](https://apify.com/yannabadie/clinical-trials-api-mcp?fpr=zuvzfw)** (`$5/1k`, 500k+ studies, free count mode, URL/NCT lookup & contacts)
+- **[NPI Registry Scraper — US Doctors & Clinics API](https://apify.com/yannabadie/npi-healthcare-providers-mcp?fpr=zuvzfw)** (`$2.50/1k` all-inclusive, 8M+ U.S. doctors & clinics, phones, fax & authorized officials)
+- **[PubMed & Europe PMC API — Papers, Emails & PDFs](https://apify.com/yannabadie/pubmed-europepmc-api-mcp?fpr=zuvzfw)** (`$2/1k`, 37M+ papers, full abstracts, author emails, ORCIDs, grants, NCT trial links & free PDFs)
+- **[Hosted REST API (RapidAPI) — EU & US Official Open-Data Intelligence](https://rapidapi.com/YannAbadie/api/eu-us-official-open-data-intelligence1)** (edge-cached REST gateway covering all 5 official registries, free `100 req/mo` Basic tier + Pro/Ultra/Mega plans)
 - **[Free n8n Workflow Templates & Starter CLI](https://github.com/yannabadie/official-opendata-mcp-n8n-templates)**
 
 ---
