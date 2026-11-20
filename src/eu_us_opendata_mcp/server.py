@@ -5,11 +5,13 @@ Tools exposed (zero API keys, zero external Python packages):
 2. search_eu_public_tenders — Official EU TED Search API v3 (27 EU countries + buyer contacts)
 3. search_clinical_trials   — Official U.S. NIH ClinicalTrials.gov REST API v2
 4. search_us_npi_providers  — Official U.S. CMS NPPES NPI Registry API v2.1 (8M+ doctors & clinics)
+5. search_pubmed_papers     — Official EMBL-EBI Europe PMC & PubMed REST API (37M+ papers, full abstracts & free PDFs)
 """
 
 from __future__ import annotations
 
 import gzip
+import html
 import json
 import re
 import sys
@@ -20,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 SERVER_NAME = "eu-us-opendata-mcp"
-SERVER_VERSION = "1.0.0"
+SERVER_VERSION = "1.1.0"
 PROTOCOL_VERSION = "2024-11-05"
 USER_AGENT = f"{SERVER_NAME}/{SERVER_VERSION} (+https://github.com/yannabadie/eu-us-opendata-mcp)"
 
@@ -94,6 +96,24 @@ TOOLS_SPEC: list[dict[str, Any]] = [
                 "organization_name": {"type": "string", "description": "Optional clinic/hospital organization name."},
                 "npi_number": {"type": "string", "description": "Optional exact 10-digit NPI lookup."},
                 "limit": {"type": "integer", "description": "Max providers (1 to 25, default 5).", "default": 5},
+            },
+        },
+    },
+    {
+        "name": "search_pubmed_papers",
+        "description": (
+            "Search 37,000,000+ biomedical papers & preprints via official EMBL-EBI Europe PMC & PubMed REST API "
+            "(returns PMID/PMCID/DOI, full abstract, citations, author emails, MeSH terms, NIH/EU grants & free PDF URL)."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Keywords, drug, disease, or PMID/DOI (e.g. 'GLP-1 semaglutide', 'CRISPR')."},
+                "journal": {"type": "string", "description": "Optional journal name or ISO abbreviation (e.g. 'Lancet', 'N Engl J Med')."},
+                "pub_year_from": {"type": "integer", "description": "Optional start publication year (e.g. 2023)."},
+                "open_access_only": {"type": "boolean", "description": "Restrict to Open Access papers."},
+                "sort_by": {"type": "string", "description": "relevance (default), date, or cited.", "default": "relevance"},
+                "limit": {"type": "integer", "description": "Max papers (1 to 25, default 5).", "default": 5},
             },
         },
     },
@@ -382,11 +402,95 @@ def tool_search_us_npi_providers(args: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def tool_search_pubmed_papers(args: dict[str, Any]) -> dict[str, Any]:
+    limit = max(1, min(int(args.get("limit") or 5), 25))
+    parts: list[str] = []
+    q = str(args.get("query") or "").strip()
+    if q:
+        if q.isdigit():
+            parts.append(f"(EXT_ID:{q} AND SRC:MED)")
+        elif q.upper().startswith("PMC") and q[3:].isdigit():
+            parts.append(f"PMCID:{q.upper()}")
+        elif q.startswith("10.") and "/" in q:
+            parts.append(f'DOI:"{q.replace(chr(34), "")}"')
+        else:
+            parts.append(f"({q})" if " OR " in q and not q.startswith("(") else q)
+    if args.get("journal"):
+        j = str(args["journal"]).replace('"', "").strip()
+        if j:
+            parts.append(f'JOURNAL:"{j}"')
+    if args.get("pub_year_from"):
+        parts.append(f"PUB_YEAR:[{int(args['pub_year_from'])} TO 2100]")
+    if args.get("open_access_only"):
+        parts.append("OPEN_ACCESS:Y")
+    epmc_q = " AND ".join(parts) if parts else "SRC:MED"
+
+    params: dict[str, Any] = {
+        "query": epmc_q,
+        "format": "json",
+        "pageSize": limit,
+        "resultType": "core",
+    }
+    sort_by = str(args.get("sort_by") or "relevance").lower()
+    if sort_by == "cited":
+        params["sort"] = "CITED desc"
+    elif sort_by == "date":
+        params["sort"] = "P_PDATE_D desc"
+
+    data = _http_json("https://www.ebi.ac.uk/europepmc/webservices/rest/search", params=params)
+    email_re = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
+    tag_re = re.compile(r"<[^>]+>")
+    papers = []
+    for rec in (data.get("resultList") or {}).get("result") or []:
+        pmid = str(rec["pmid"]) if rec.get("pmid") else None
+        pmcid = str(rec["pmcid"]) if rec.get("pmcid") else None
+        doi = str(rec["doi"]) if rec.get("doi") else None
+        raw_abs = rec.get("abstractText") or ""
+        clean_abs = re.sub(r"\s+", " ", tag_re.sub(" ", html.unescape(raw_abs))).strip() or None
+        aff_blobs = [str(rec.get("affiliation") or "")]
+        for a in (rec.get("authorList") or {}).get("author") or []:
+            for af in (a.get("authorAffiliationDetailsList") or {}).get("authorAffiliation") or []:
+                if af.get("affiliation"):
+                    aff_blobs.append(str(af["affiliation"]))
+        emails = list(dict.fromkeys(m.rstrip(".,;:") for blob in aff_blobs for m in email_re.findall(blob)))
+        free_pdf = None
+        for u in (rec.get("fullTextUrlList") or {}).get("fullTextUrl") or []:
+            if u.get("availabilityCode") == "F" and str(u.get("documentStyle") or "").lower() == "pdf":
+                free_pdf = u.get("url")
+                break
+        journal = ((rec.get("journalInfo") or {}).get("journal") or {}).get("isoabbreviation")
+        papers.append(
+            {
+                "pmid": pmid,
+                "pmcid": pmcid,
+                "doi": doi,
+                "title": re.sub(r"\s+", " ", tag_re.sub(" ", html.unescape(str(rec.get("title") or "")))).strip() or None,
+                "journal": journal,
+                "pubYear": int(rec["pubYear"]) if str(rec.get("pubYear") or "").isdigit() else None,
+                "citedByCount": int(rec.get("citedByCount") or 0),
+                "isOpenAccess": rec.get("isOpenAccess") == "Y",
+                "authorString": rec.get("authorString"),
+                "authorEmails": emails,
+                "abstractText": clean_abs,
+                "freePdfUrl": free_pdf,
+                "pubmedUrl": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/" if pmid else None,
+            }
+        )
+    return {
+        "source": "EMBL-EBI Europe PMC & PubMed REST API",
+        "query": epmc_q,
+        "total_matches": int(data.get("hitCount") or 0),
+        "returned": len(papers),
+        "papers": papers,
+    }
+
+
 TOOL_DISPATCH = {
     "search_french_companies": tool_search_french_companies,
     "search_eu_public_tenders": tool_search_eu_public_tenders,
     "search_clinical_trials": tool_search_clinical_trials,
     "search_us_npi_providers": tool_search_us_npi_providers,
+    "search_pubmed_papers": tool_search_pubmed_papers,
 }
 
 

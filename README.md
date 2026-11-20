@@ -1,9 +1,10 @@
 # `eu-us-opendata-mcp`
 
 [![MCP Stdio Tests](https://github.com/yannabadie/eu-us-opendata-mcp/actions/workflows/test.yml/badge.svg)](https://github.com/yannabadie/eu-us-opendata-mcp/actions/workflows/test.yml)
+[![yannabadie/eu-us-opendata-mcp MCP server](https://glama.ai/mcp/servers/yannabadie/eu-us-opendata-mcp/badges/score.svg)](https://glama.ai/mcp/servers/yannabadie/eu-us-opendata-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Zero-dependency, zero-API-key **Model Context Protocol (MCP)** stdio server in pure Python 3.10+ for querying **4 official European & U.S. government open-data registries** directly from **Claude Desktop, Claude Code, Cursor, Windsurf, Google Antigravity, or Codex**.
+Zero-dependency, zero-API-key **Model Context Protocol (MCP)** stdio server in pure Python 3.10+ for querying **5 official European & U.S. government & biomedical open-data registries** directly from **Claude Desktop, Claude Code, Cursor, Windsurf, Google Antigravity, or Codex**.
 
 ---
 
@@ -15,6 +16,7 @@ Zero-dependency, zero-API-key **Model Context Protocol (MCP)** stdio server in p
 | `search_eu_public_tenders` | **EU TED Search API v3** (`api.ted.europa.eu/v3` — 27 EU countries) | Tender ID, title, buyer name, **buyer email, phone & website**, CPV codes, deadline & official notice URL |
 | `search_clinical_trials` | **U.S. NIH ClinicalTrials.gov REST API v2** (`clinicaltrials.gov/api/v2`) | NCT ID, title, status, phases, lead sponsor, enrollment, central contact email/phone & study URL |
 | `search_us_npi_providers` | **U.S. CMS NPPES NPI Registry API v2.1** (`npiregistry.cms.hhs.gov`) | 10-digit NPI, doctor/clinic name, primary specialty, city/state, **direct phone & fax**, NPPES profile URL |
+| `search_pubmed_papers` | **EMBL-EBI Europe PMC & PubMed REST API** (`ebi.ac.uk/europepmc`) | PMID/PMCID/DOI, **full untruncated abstract**, citations, **author emails**, MeSH terms & **free PDF URL** |
 
 ---
 
@@ -67,6 +69,7 @@ This local MCP server is built for fast interactive agent lookups (up to 25 resu
 - **[TED Europa & BOAMP — EU Public Tenders & Contacts](https://apify.com/yannabadie/eu-public-tenders-ted-boamp)** (`$3–$4/1k`, 27 EU countries + France, buyer contacts & award winners)
 - **[ClinicalTrials.gov API v2 — Trials & Contacts](https://apify.com/yannabadie/clinical-trials-api-mcp)** (`$5/1k`, 500k+ studies, free count mode, URL/NCT lookup & contacts)
 - **[NPI Registry Scraper — US Doctors & Clinics API](https://apify.com/yannabadie/npi-healthcare-providers-mcp)** (`$2.50/1k` all-inclusive, 8M+ U.S. doctors & clinics, phones, fax & authorized officials)
+- **[PubMed & Europe PMC API — Papers, Emails & PDFs](https://apify.com/yannabadie/pubmed-europepmc-api-mcp)** (`$2/1k`, 37M+ papers, full abstracts, author emails, ORCIDs, grants, NCT trial links & free PDFs)
 - **[Free n8n Workflow Templates & Starter CLI](https://github.com/yannabadie/official-opendata-mcp-n8n-templates)**
 
 ---

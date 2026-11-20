@@ -41,19 +41,21 @@ class TestMcpStdioServer(unittest.TestCase):
                 "search_eu_public_tenders",
                 "search_clinical_trials",
                 "search_us_npi_providers",
+                "search_pubmed_papers",
             ],
         )
 
-    def test_live_all_four_official_registries(self) -> None:
+    def test_live_all_five_official_registries(self) -> None:
         replies = self._run_rpc(
             [
                 {"jsonrpc": "2.0", "id": 10, "method": "tools/call", "params": {"name": "search_french_companies", "arguments": {"query": "794598813", "limit": 1}}},
                 {"jsonrpc": "2.0", "id": 11, "method": "tools/call", "params": {"name": "search_eu_public_tenders", "arguments": {"country": "FRA", "cpv_prefix": "72", "limit": 1}}},
                 {"jsonrpc": "2.0", "id": 12, "method": "tools/call", "params": {"name": "search_clinical_trials", "arguments": {"condition": "diabetes", "limit": 1}}},
                 {"jsonrpc": "2.0", "id": 13, "method": "tools/call", "params": {"name": "search_us_npi_providers", "arguments": {"npi_number": "1588410302"}}},
+                {"jsonrpc": "2.0", "id": 14, "method": "tools/call", "params": {"name": "search_pubmed_papers", "arguments": {"query": "27295427", "limit": 1}}},
             ]
         )
-        self.assertEqual(len(replies), 4)
+        self.assertEqual(len(replies), 5)
         for rep in replies:
             self.assertFalse(rep["result"]["isError"], f"Tool failed: {rep}")
             data = json.loads(rep["result"]["content"][0]["text"])

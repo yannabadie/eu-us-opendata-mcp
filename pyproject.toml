@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eu-us-opendata-mcp"
-version = "1.0.0"
-description = "Zero-dependency, zero-API-key MCP server for official EU & U.S. government open-data registries (French SIRENE/RNE, EU TED v3 Public Tenders, NIH ClinicalTrials.gov v2, U.S. CMS NPI Healthcare Providers)."
+version = "1.1.0"
+description = "Zero-dependency, zero-API-key MCP server for 5 official EU & U.S. government open-data registries (French SIRENE/RNE, EU TED v3 Public Tenders, NIH ClinicalTrials.gov v2, U.S. CMS NPI Healthcare Providers, EMBL-EBI Europe PMC & PubMed)."
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [{name = "Yann Abadie"}]
-keywords = ["mcp", "model-context-protocol", "open-data", "sirene", "ted-europa", "clinical-trials", "npi-registry", "government-data"]
+keywords = ["mcp", "model-context-protocol", "open-data", "sirene", "ted-europa", "clinical-trials", "npi-registry", "pubmed", "europe-pmc", "government-data"]
 
 [project.urls]
 Homepage = "https://github.com/yannabadie/eu-us-opendata-mcp"
