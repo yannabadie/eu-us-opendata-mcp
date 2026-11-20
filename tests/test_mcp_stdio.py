@@ -52,7 +52,7 @@ class TestMcpStdioServer(unittest.TestCase):
                 {"jsonrpc": "2.0", "id": 11, "method": "tools/call", "params": {"name": "search_eu_public_tenders", "arguments": {"country": "FRA", "cpv_prefix": "72", "limit": 1}}},
                 {"jsonrpc": "2.0", "id": 12, "method": "tools/call", "params": {"name": "search_clinical_trials", "arguments": {"condition": "diabetes", "limit": 1}}},
                 {"jsonrpc": "2.0", "id": 13, "method": "tools/call", "params": {"name": "search_us_npi_providers", "arguments": {"npi_number": "1588410302"}}},
-                {"jsonrpc": "2.0", "id": 14, "method": "tools/call", "params": {"name": "search_pubmed_papers", "arguments": {"query": "27295427", "limit": 1}}},
+                {"jsonrpc": "2.0", "id": 14, "method": "tools/call", "params": {"name": "search_pubmed_papers", "arguments": {"query": "EXT_ID:39966374", "limit": 1}}},
             ]
         )
         self.assertEqual(len(replies), 5)
@@ -60,6 +60,22 @@ class TestMcpStdioServer(unittest.TestCase):
             self.assertFalse(rep["result"]["isError"], f"Tool failed: {rep}")
             data = json.loads(rep["result"]["content"][0]["text"])
             self.assertGreaterEqual(data["returned"], 1)
+        pubmed_data = json.loads(replies[4]["result"]["content"][0]["text"])
+        self.assertTrue(
+            pubmed_data["papers"][0]["freePdfUrl"],
+            "Expected OA/F Europe PMC PDF URL for PMID 39966374",
+        )
+
+    def test_server_json_manifest(self) -> None:
+        manifest = json.loads((ROOT / "server.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["name"], "io.github.yannabadie/eu-us-opendata-mcp")
+        self.assertLessEqual(len(manifest["description"]), 100)
+        self.assertEqual(manifest["packages"][0]["registryType"], "oci")
+        self.assertTrue(
+            manifest["packages"][0]["identifier"].startswith(
+                "ghcr.io/yannabadie/eu-us-opendata-mcp:"
+            )
+        )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.yannabadie/eu-us-opendata-mcp",
+  "title": "EU & U.S. Official Open-Data MCP Server",
+  "description": "Zero-key Python MCP server for French SIRENE, EU TED tenders, NIH trials, US NPI & Europe PMC.",
+  "repository": {
+    "url": "https://github.com/yannabadie/eu-us-opendata-mcp",
+    "source": "github"
+  },
+  "version": "1.1.1",
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/yannabadie/eu-us-opendata-mcp:1.1.1",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

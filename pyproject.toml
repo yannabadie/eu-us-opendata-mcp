@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eu-us-opendata-mcp"
-version = "1.1.0"
+version = "1.1.1"
 description = "Zero-dependency, zero-API-key MCP server for 5 official EU & U.S. government open-data registries (French SIRENE/RNE, EU TED v3 Public Tenders, NIH ClinicalTrials.gov v2, U.S. CMS NPI Healthcare Providers, EMBL-EBI Europe PMC & PubMed)."
 readme = "README.md"
 license = {text = "MIT"}

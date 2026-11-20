@@ -1,0 +1,102 @@
+name: Publish OCI Image & Official MCP Registry
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env:
+      MCP_PUBLISHER_VERSION: v1.8.10
+      IMAGE_NAME: ghcr.io/yannabadie/eu-us-opendata-mcp
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run MCP stdio tests
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
+
+      - name: Determine release version
+        id: ver
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION="$(python3 -c 'import json; print(json.load(open("server.json"))["version"])')"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push OCI image to GHCR
+        run: |
+          docker build \
+            -t "${IMAGE_NAME}:${{ steps.ver.outputs.version }}" \
+            -t "${IMAGE_NAME}:latest" \
+            .
+          docker push "${IMAGE_NAME}:${{ steps.ver.outputs.version }}"
+          docker push "${IMAGE_NAME}:latest"
+
+      - name: Sync server.json version and OCI tag
+        run: |
+          python3 -c '
+          import json, os
+          v = os.environ["VERSION"]
+          img = os.environ["IMAGE_NAME"]
+          with open("server.json", encoding="utf-8") as f:
+              data = json.load(f)
+          data["version"] = v
+          for pkg in data.get("packages", []):
+              if pkg.get("registryType") == "oci":
+                  pkg["identifier"] = f"{img}:{v}"
+          with open("server.json", "w", encoding="utf-8") as f:
+              json.dump(data, f, indent=2)
+              f.write("\n")
+          '
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      - name: Download and verify mcp-publisher
+        run: |
+          set -euo pipefail
+          os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+          arch="$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')"
+          archive="mcp-publisher_${os}_${arch}.tar.gz"
+          base_url="https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}"
+
+          curl --fail --location --silent --show-error --output "$archive" "$base_url/$archive"
+          curl --fail --location --silent --show-error --output "$archive.sigstore.json" "$base_url/$archive.sigstore.json"
+          cosign verify-blob \
+            --bundle "$archive.sigstore.json" \
+            --certificate-identity "https://github.com/modelcontextprotocol/registry/.github/workflows/release.yml@refs/tags/${MCP_PUBLISHER_VERSION}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            "$archive"
+          tar xzf "$archive" mcp-publisher
+          rm -f "$archive" "$archive.sigstore.json"
+
+      - name: Authenticate to Official MCP Registry via GitHub OIDC
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish server.json to Official MCP Registry
+        run: ./mcp-publisher publish

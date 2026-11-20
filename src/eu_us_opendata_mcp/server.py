@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 SERVER_NAME = "eu-us-opendata-mcp"
-SERVER_VERSION = "1.1.0"
+SERVER_VERSION = "1.1.1"
 PROTOCOL_VERSION = "2024-11-05"
 USER_AGENT = f"{SERVER_NAME}/{SERVER_VERSION} (+https://github.com/yannabadie/eu-us-opendata-mcp)"
 
@@ -455,7 +455,7 @@ def tool_search_pubmed_papers(args: dict[str, Any]) -> dict[str, Any]:
         emails = list(dict.fromkeys(m.rstrip(".,;:") for blob in aff_blobs for m in email_re.findall(blob)))
         free_pdf = None
         for u in (rec.get("fullTextUrlList") or {}).get("fullTextUrl") or []:
-            if u.get("availabilityCode") == "F" and str(u.get("documentStyle") or "").lower() == "pdf":
+            if u.get("availabilityCode") in ("F", "OA") and str(u.get("documentStyle") or "").lower() == "pdf":
                 free_pdf = u.get("url")
                 break
         journal = ((rec.get("journalInfo") or {}).get("journal") or {}).get("isoabbreviation")
