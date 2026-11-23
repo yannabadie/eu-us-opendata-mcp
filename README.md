@@ -2,6 +2,7 @@
 
 [![MCP Stdio Tests](https://github.com/yannabadie/eu-us-opendata-mcp/actions/workflows/test.yml/badge.svg)](https://github.com/yannabadie/eu-us-opendata-mcp/actions/workflows/test.yml)
 [![yannabadie/eu-us-opendata-mcp MCP server](https://glama.ai/mcp/servers/yannabadie/eu-us-opendata-mcp/badges/score.svg)](https://glama.ai/mcp/servers/yannabadie/eu-us-opendata-mcp)
+[![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/yannabadie/eu-us-opendata-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Zero-dependency, zero-API-key **Model Context Protocol (MCP)** stdio server in pure Python 3.10+ for querying **5 official European & U.S. government & biomedical open-data registries** directly from **Claude Desktop, Claude Code, Cursor, Windsurf, Google Antigravity, or Codex**.
